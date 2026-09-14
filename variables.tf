@@ -71,6 +71,12 @@ variable "search_service_name" {
   default     = null
 }
 
+variable "search_location" {
+  description = "Azure region for Azure AI Search. Defaults to the resource group region when not set."
+  type        = string
+  default     = null
+}
+
 variable "search_sku" {
   description = "SKU of the Azure AI Search service."
   type        = string

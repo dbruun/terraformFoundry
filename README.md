@@ -62,6 +62,7 @@ terraform apply
 | `foundry_project_name` | Name of the default Foundry project. | `"default-project"` |
 | `foundry_public_network_access_enabled` | Allow public network access to the Foundry account (ignored, forced to `false`, when private networking is enabled). | `true` |
 | `search_service_name` | Name of the Azure AI Search service. | `<name_prefix>search<random>` |
+| `search_location` | Azure region for Azure AI Search; override if the primary region lacks capacity. Cross-region deployment may incur latency and data-transfer costs. | Resource group region |
 | `search_sku` | SKU for Azure AI Search. | `"standard"` |
 | `search_replica_count` | Replica count for Azure AI Search. | `1` |
 | `search_partition_count` | Partition count for Azure AI Search. | `1` |
@@ -90,6 +91,7 @@ terraform apply
 
 ## Notes
 
+- Foundry and Azure AI Search use Entra ID authentication; local API-key authentication is disabled.
 - The Foundry account is granted access to Azure AI Search (`Search Service Contributor` and
   `Search Index Data Contributor`) and, when enabled, to Cosmos DB (`Cosmos DB Built-in Data Contributor`)
   via its system-assigned managed identity, and is wired up to both as Foundry connections.

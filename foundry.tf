@@ -14,6 +14,7 @@ resource "azurerm_cognitive_account" "foundry" {
   project_management_enabled = true
 
   public_network_access_enabled = var.enable_private_networking ? false : var.foundry_public_network_access_enabled
+  local_auth_enabled            = false
 
   identity {
     type = "SystemAssigned"
