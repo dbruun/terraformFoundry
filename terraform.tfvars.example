@@ -1,0 +1,14 @@
+name_prefix = "foundry"
+location    = "eastus2"
+
+tags = {
+  environment = "dev"
+  project     = "foundry"
+}
+
+# Optional: deploy a Cosmos DB account alongside the Foundry account and Azure AI Search.
+enable_cosmos_db = false
+
+# Optional: create a virtual network with private endpoints for the Foundry account,
+# Azure AI Search and (when enabled) Cosmos DB, and disable public network access.
+enable_private_networking = false
