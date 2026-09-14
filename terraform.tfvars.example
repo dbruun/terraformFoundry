@@ -1,14 +1,106 @@
-name_prefix = "foundry"
+# Copy this file to terraform.tfvars and customize it before planning.
+# Terraform automatically loads terraform.tfvars, but not this .example file.
+# All supported inputs are listed below. null preserves the derived default.
+# Set ARM_SUBSCRIPTION_ID and ARM_TENANT_ID in your shell; authenticate separately.
+# Do not put credentials in this file. Keep your local terraform.tfvars out of Git.
+# Review costs and the plan before applying; changing names can replace resources.
+
+#############################
+# General naming and region
+#############################
+
+# 2-10 lowercase letters or numbers; used for names without explicit overrides.
+name_prefix = "prefix"
 location    = "eastus2"
+
+# Creates a resource group; this is not a reference to an existing unmanaged group.
+# Example: "contoso-ai-dev-rg". Default: "<name_prefix>-rg".
+resource_group_name = null
 
 tags = {
   environment = "dev"
   project     = "foundry"
 }
 
-# Optional: deploy a Cosmos DB account alongside the Foundry account and Azure AI Search.
+#############################
+# Microsoft Foundry
+#############################
+
+# Example: "contoso-ai-dev". Default: "<name_prefix>-foundry".
+foundry_account_name = null
+foundry_sku_name     = "S0"
+
+# Must be globally unique when overridden, e.g. "contoso-ai-dev-unique123".
+# Default: "<name_prefix>-foundry-<random>".
+foundry_custom_subdomain_name = null
+
+# Example: "customer-assistant".
+foundry_project_name = "default-project"
+
+# Forced to false when enable_private_networking is true.
+# Foundry uses Entra ID authentication; local API-key authentication is disabled.
+foundry_public_network_access_enabled = true
+
+#############################
+# Azure AI Search (required)
+#############################
+
+# Must be globally unique when overridden, e.g. "contoso-ai-search-unique123".
+# Default: "<name_prefix>search<random>".
+search_service_name = null
+
+# null uses the main location. Example: "eastus" if the main region lacks capacity.
+# Cross-region deployment can add latency and data-transfer charges.
+search_location = null
+
+# SKU, replica and partition combinations must be supported by Azure AI Search.
+# Higher tiers and additional replicas/partitions increase costs.
+search_sku             = "standard"
+search_replica_count   = 1
+search_partition_count = 1
+
+# Forced to false when enable_private_networking is true.
+# Search uses Entra ID authentication; local API-key authentication is disabled.
+search_public_network_access_enabled = true
+
+#############################
+# Azure Cosmos DB (optional)
+#############################
+
+# Creates a Cosmos DB account, Foundry connection, and data role assignment.
+# This alone does not configure a complete Agent Service storage backend.
 enable_cosmos_db = false
 
-# Optional: create a virtual network with private endpoints for the Foundry account,
-# Azure AI Search and (when enabled) Cosmos DB, and disable public network access.
+# Must be globally unique when overridden, e.g. "contoso-ai-cosmos-unique123".
+# Default: "<name_prefix>-cosmos-<random>". Used only when Cosmos DB is enabled.
+cosmos_db_account_name = null
+
+# Choices: Strong, BoundedStaleness, Session, ConsistentPrefix, Eventual.
+cosmos_db_consistency_level = "Session"
+
+# Used only with BoundedStaleness; ignored for other consistency levels.
+# Interval: 5-86400 seconds. Prefix: 10-2147483647 stale requests.
+cosmos_db_max_interval_in_seconds = 5
+cosmos_db_max_staleness_prefix    = 100
+
+# Forced to false when enable_private_networking is true.
+cosmos_db_public_network_access_enabled = true
+
+#############################
+# Private networking (optional)
+#############################
+
+# Creates a VNet, subnets, private endpoints and private DNS zones/links.
+# Disables public access to Foundry, Search, and Cosmos DB when deployed.
+# Clients need network connectivity and DNS resolution into the VNet.
+# Does not configure full Agent Service network injection or outbound connectivity.
 enable_private_networking = false
+
+# Used only when private networking is enabled. Choose IPv4 address ranges that
+# do not conflict with connected networks. Both subnets must fit inside the VNet
+# and must not overlap each other.
+vnet_address_space                       = ["10.60.0.0/16"]
+private_endpoint_subnet_address_prefixes = ["10.60.1.0/24"]
+
+# Reserved delegated subnet for future Agent Service network injection.
+agent_subnet_address_prefixes = ["10.60.2.0/24"]
